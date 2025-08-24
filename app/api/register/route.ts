@@ -4,6 +4,9 @@ import { appendRegistration } from '@/lib/sheets';
 import { signSession, setSessionCookie } from '@/lib/auth';
 import { customAlphabet } from 'nanoid';
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 const schema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   companyName: z.string().min(1, "Company name is required"),

@@ -3,6 +3,9 @@ import { getSession } from '@/lib/auth';
 import { z } from 'zod';
 import { appendBid } from '@/lib/sheets';
 
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 const schema = z.object({
   bundleSlug: z.enum(['vrf-indoor','vrf-outdoor','accessories','split','spare','mixed']),
   bidAmount: z.number().min(0.01, "Bid amount must be greater than 0"),
