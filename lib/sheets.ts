@@ -66,11 +66,11 @@ const getSheets = () => {
   console.log('Private key starts with:', privateKey.substring(0, 50));
   console.log('Private key ends with:', privateKey.substring(privateKey.length - 50));
 
-  // Create GoogleAuth with direct credentials (works in both local and serverless)
+  // Create GoogleAuth with required JWT credentials only
   const auth = new google.auth.GoogleAuth({
     credentials: {
       type: "service_account",
-      project_id: "daikin-auction",
+      project_id: "daikin-auction", 
       private_key_id: "f39e4eb1e2f0f6109323192aa0d5160afd662fc4",
       private_key: privateKey,
       client_email: clientEmail,
