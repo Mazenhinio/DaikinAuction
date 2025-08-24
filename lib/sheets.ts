@@ -1,91 +1,61 @@
 import { google } from 'googleapis';
-import fs from 'fs';
-import path from 'path';
 
-// Helper function to properly format the private key
-const formatPrivateKey = (key: string | undefined): string => {
-  if (!key) return '';
-  
-  console.log('Original key length:', key.length);
-  console.log('Original key preview:', key.substring(0, 100) + '...');
-  
-  // Handle different possible formats of the private key
-  let processedKey = key;
-  
-  // Replace literal \n with actual newlines
-  if (key.includes('\\n')) {
-    processedKey = key.replace(/\\n/g, '\n');
-    console.log('Replaced \\n with newlines');
-  }
-  
-  // If key doesn't have proper headers, add them
-  if (!processedKey.includes('-----BEGIN PRIVATE KEY-----')) {
-    console.log('Adding headers to key without them');
-    processedKey = `-----BEGIN PRIVATE KEY-----\n${processedKey}\n-----END PRIVATE KEY-----`;
-  }
-  
-  // Clean up any malformed line breaks
-  processedKey = processedKey
-    .replace(/\r\n/g, '\n') // Handle Windows line endings
-    .replace(/\r/g, '\n')   // Handle old Mac line endings
-    .replace(/\n\s+/g, '\n') // Remove spaces after newlines
-    .replace(/\n+/g, '\n')   // Replace multiple newlines with single
-    .trim();
-  
-  console.log('Processed key length:', processedKey.length);
-  console.log('Processed key preview:', processedKey.substring(0, 100) + '...');
-  
-  return processedKey;
-};
+// Create a single, reusable sheets instance
+let sheetsInstance: any = null;
 
-const sheets = () => {
-  try {
-    console.log('FORCE: Using ONLY environment variables (bypassing JSON file)...');
-    
-    // FORCE use environment variables only - don't create or load JSON files
-    const credentials = {
+const getSheets = () => {
+  if (sheetsInstance) {
+    console.log('REUSING existing Google Sheets instance');
+    return sheetsInstance;
+  }
+
+  console.log('CREATING new Google Sheets instance from environment variables...');
+  
+  // Simple, direct approach - just replace \n and use as-is (like the JSON file)
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n') || '';
+  
+  console.log('Environment check:', {
+    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    keyLength: privateKey.length,
+    spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID
+  });
+
+  // Use the EXACT same approach as when JSON worked
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
       type: "service_account",
-      project_id: "daikin-auction", // Hard-coded correct project ID
-      private_key_id: "f39e4eb1e2f0f6109323192aa0d5160afd662fc4", // Hard-coded from working JSON
-      private_key: formatPrivateKey(process.env.GOOGLE_PRIVATE_KEY),
+      project_id: "daikin-auction",
+      private_key_id: "f39e4eb1e2f0f6109323192aa0d5160afd662fc4",
+      private_key: privateKey,
       client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      client_id: "116850139086533631153", // Hard-coded from working JSON
+      client_id: "116850139086533631153",
       auth_uri: "https://accounts.google.com/o/oauth2/auth",
       token_uri: "https://oauth2.googleapis.com/token",
       auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-      client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/mazen-khalil%40daikin-auction.iam.gserviceaccount.com`,
-      universe_domain: "googleapis.com" // From working JSON
-    }
+      client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/mazen-khalil%40daikin-auction.iam.gserviceaccount.com",
+      universe_domain: "googleapis.com"
+    },
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  });
 
-    console.log('Auth setup:', {
-      email: credentials.client_email,
-      keyLength: credentials.private_key?.length,
-      usingEnvVarsOnly: true
-    });
-
-    const auth = new google.auth.GoogleAuth({
-      credentials: credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-    
-    return google.sheets({ version: 'v4', auth });
-  } catch (error) {
-    console.error('Failed to initialize Google Sheets auth:', error);
-    throw error;
-  }
+  sheetsInstance = google.sheets({ version: 'v4', auth });
+  console.log('Google Sheets instance created successfully');
+  
+  return sheetsInstance;
 };
 
 const SHEET_ID = process.env.GOOGLE_SPREADSHEET_ID!;
 
 const append = async (tab: string, values: any[]) => {
   try {
-    const api = sheets();
+    const api = getSheets();
     await api.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
       range: `${tab}!A:Z`,
       valueInputOption: 'USER_ENTERED',
       requestBody: { values: [values] },
     });
+    console.log(`Successfully appended to ${tab}`);
   } catch (error) {
     console.error(`Failed to append to ${tab}:`, error);
     throw error;
@@ -99,7 +69,7 @@ export const appendBid = (row: any[]) => append('Bids', row);
 // Optional: Helper to ensure sheets exist (basic implementation)
 export const ensureSheetExists = async (sheetName: string) => {
   try {
-    const api = sheets();
+    const api = getSheets();
     const spreadsheet = await api.spreadsheets.get({
       spreadsheetId: SHEET_ID,
     });
