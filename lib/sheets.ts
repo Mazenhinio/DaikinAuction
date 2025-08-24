@@ -11,15 +11,29 @@ const getSheets = () => {
     return sheetsInstance;
   }
 
-  console.log('CREATING Google Service Account JSON file from environment variables...');
+  console.log('CREATING Google Sheets auth with complete JSON structure in memory...');
   
-  // Create the EXACT JSON structure that Google provided and that worked locally
+  // Check environment variables
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n') || '';
+  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '';
+  
+  console.log('Environment variable check:', {
+    GOOGLE_SPREADSHEET_ID: process.env.GOOGLE_SPREADSHEET_ID ? 'SET' : 'MISSING',
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: clientEmail ? 'SET' : 'MISSING', 
+    GOOGLE_PRIVATE_KEY: privateKey ? `SET (${privateKey.length} chars)` : 'MISSING'
+  });
+  
+  if (!privateKey || !clientEmail) {
+    throw new Error('Missing required environment variables: GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL must be set in Vercel');
+  }
+
+  // Create the EXACT JSON structure that Google provided (in memory, not file)
   const serviceAccountJson = {
     "type": "service_account",
     "project_id": "daikin-auction",
     "private_key_id": "f39e4eb1e2f0f6109323192aa0d5160afd662fc4",
-    "private_key": process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n') || '',
-    "client_email": process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '',
+    "private_key": privateKey,
+    "client_email": clientEmail,
     "client_id": "116850139086533631153",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
     "token_uri": "https://oauth2.googleapis.com/token",
@@ -28,20 +42,15 @@ const getSheets = () => {
     "universe_domain": "googleapis.com"
   };
 
-  console.log('Service account setup:', {
+  console.log('Service account ready:', {
     email: serviceAccountJson.client_email,
     keyLength: serviceAccountJson.private_key.length,
     spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID
   });
 
-  // Write the JSON file exactly as Google provided it
-  const credentialsPath = path.join(process.cwd(), 'daikin-auction-f39e4eb1e2f0.json');
-  fs.writeFileSync(credentialsPath, JSON.stringify(serviceAccountJson, null, 2));
-  console.log('Created service account JSON file at:', credentialsPath);
-
-  // Use the EXACT same approach that worked locally - load from JSON file
+  // Use credentials directly (no file needed in serverless environment)
   const auth = new google.auth.GoogleAuth({
-    keyFile: credentialsPath,
+    credentials: serviceAccountJson,
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
 
