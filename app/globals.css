@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 100% 98%; /* Light blue-white */
+    --foreground: 220 100% 15%; /* Midnight blue */
+
+    --card: 0 0% 100%; /* Pure white for cards */
+    --card-foreground: 220 100% 15%; /* Midnight blue text */
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 100% 15%;
+
+    --primary: 200 100% 50%; /* Electric blue */
+    --primary-foreground: 0 0% 100%; /* White text on electric blue */
+
+    --secondary: 220 100% 20%; /* Midnight blue */
+    --secondary-foreground: 0 0% 100%; /* White text on midnight blue */
+
+    --muted: 210 100% 95%; /* Very light blue */
+    --muted-foreground: 220 50% 40%; /* Medium blue-gray */
+
+    --accent: 195 100% 60%; /* Bright electric blue */
+    --accent-foreground: 220 100% 15%; /* Midnight blue text */
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 50% 85%; /* Light blue border */
+    --input: 210 50% 90%; /* Light blue input background */
+    --ring: 200 100% 50%; /* Electric blue focus ring */
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 220 100% 8%; /* Dark midnight blue */
+    --foreground: 200 100% 85%; /* Light electric blue */
+
+    --card: 220 100% 12%; /* Slightly lighter midnight blue */
+    --card-foreground: 200 100% 85%;
+
+    --popover: 220 100% 12%;
+    --popover-foreground: 200 100% 85%;
+
+    --primary: 200 100% 60%; /* Bright electric blue */
+    --primary-foreground: 220 100% 8%; /* Dark midnight blue text */
+
+    --secondary: 220 100% 20%; /* Medium midnight blue */
+    --secondary-foreground: 200 100% 85%;
+
+    --muted: 220 50% 15%; /* Muted dark blue */
+    --muted-foreground: 200 50% 65%; /* Muted light blue */
+
+    --accent: 195 100% 70%; /* Bright accent blue */
+    --accent-foreground: 220 100% 8%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 50% 20%; /* Dark blue border */
+    --input: 220 50% 18%; /* Dark blue input */
+    --ring: 200 100% 60%; /* Electric blue focus ring */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Outstanding welcome banner animations */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.4); }
+    50% { box-shadow: 0 0 30px rgba(34, 211, 238, 0.6), 0 0 40px rgba(34, 211, 238, 0.3); }
+  }
+  
+  .welcome-shimmer {
+    background: linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite;
+  }
+  
+  .welcome-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .welcome-glow {
+    animation: glow 4s ease-in-out infinite;
+  }
+}
