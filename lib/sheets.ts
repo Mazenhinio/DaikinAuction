@@ -11,51 +11,76 @@ const getSheets = () => {
     return sheetsInstance;
   }
 
-  console.log('CREATING Google Sheets auth with complete JSON structure in memory...');
+  console.log('INITIALIZING Google Sheets with environment variables...');
   
-  // Check environment variables
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n') || '';
-  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '';
+  // Get environment variables with proper error handling
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const privateKeyRaw = process.env.GOOGLE_PRIVATE_KEY;
   
-  console.log('Environment variable check:', {
-    GOOGLE_SPREADSHEET_ID: process.env.GOOGLE_SPREADSHEET_ID ? 'SET' : 'MISSING',
-    GOOGLE_SERVICE_ACCOUNT_EMAIL: clientEmail ? 'SET' : 'MISSING', 
-    GOOGLE_PRIVATE_KEY: privateKey ? `SET (${privateKey.length} chars)` : 'MISSING'
+  console.log('Environment check:', {
+    GOOGLE_SPREADSHEET_ID: spreadsheetId ? 'SET' : 'MISSING',
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: clientEmail ? 'SET' : 'MISSING',
+    GOOGLE_PRIVATE_KEY: privateKeyRaw ? `SET (${privateKeyRaw.length} chars)` : 'MISSING'
   });
   
-  if (!privateKey || !clientEmail) {
-    throw new Error('Missing required environment variables: GOOGLE_PRIVATE_KEY and GOOGLE_SERVICE_ACCOUNT_EMAIL must be set in Vercel');
+  // Validate all required environment variables
+  if (!spreadsheetId) {
+    throw new Error('GOOGLE_SPREADSHEET_ID environment variable is required');
+  }
+  if (!clientEmail) {
+    throw new Error('GOOGLE_SERVICE_ACCOUNT_EMAIL environment variable is required');
+  }
+  if (!privateKeyRaw) {
+    throw new Error('GOOGLE_PRIVATE_KEY environment variable is required');
   }
 
-  // Create the EXACT JSON structure that Google provided (in memory, not file)
-  const serviceAccountJson = {
-    "type": "service_account",
-    "project_id": "daikin-auction",
-    "private_key_id": "f39e4eb1e2f0f6109323192aa0d5160afd662fc4",
-    "private_key": privateKey,
-    "client_email": clientEmail,
-    "client_id": "116850139086533631153",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mazen-khalil%40daikin-auction.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-  };
+  // Process private key with robust format handling
+  let privateKey = privateKeyRaw.trim();
+  
+  // Remove surrounding quotes if present
+  if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+    privateKey = privateKey.slice(1, -1);
+  }
+  
+  // Replace escaped newlines with actual newlines
+  privateKey = privateKey.replace(/\\n/g, '\n');
+  
+  // Ensure proper PEM format (sometimes the key gets mangled)
+  if (!privateKey.startsWith('-----BEGIN PRIVATE KEY-----')) {
+    throw new Error('Private key must start with -----BEGIN PRIVATE KEY-----');
+  }
+  if (!privateKey.endsWith('-----END PRIVATE KEY-----')) {
+    throw new Error('Private key must end with -----END PRIVATE KEY-----');
+  }
+  
+  // Clean up any extra whitespace but preserve newlines
+  privateKey = privateKey.replace(/\r\n/g, '\n'); // Convert Windows line endings
+  privateKey = privateKey.replace(/\r/g, '\n');   // Convert old Mac line endings
+  
+  // Split into lines, trim each line (removes extra spaces), rejoin
+  const lines = privateKey.split('\n');
+  privateKey = lines.map(line => line.trim()).join('\n');
+  
+  console.log('Processed private key length:', privateKey.length);
+  console.log('Private key starts with:', privateKey.substring(0, 50));
+  console.log('Private key ends with:', privateKey.substring(privateKey.length - 50));
 
-  console.log('Service account ready:', {
-    email: serviceAccountJson.client_email,
-    keyLength: serviceAccountJson.private_key.length,
-    spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID
-  });
-
-  // Use credentials directly (no file needed in serverless environment)
+  // Create GoogleAuth with direct credentials (works in both local and serverless)
   const auth = new google.auth.GoogleAuth({
-    credentials: serviceAccountJson,
+    credentials: {
+      type: "service_account",
+      project_id: "daikin-auction",
+      private_key_id: "f39e4eb1e2f0f6109323192aa0d5160afd662fc4",
+      private_key: privateKey,
+      client_email: clientEmail,
+      client_id: "116850139086533631153"
+    },
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
 
   sheetsInstance = google.sheets({ version: 'v4', auth });
-  console.log('Google Sheets instance created successfully using JSON file approach');
+  console.log('✅ Google Sheets instance created successfully');
   
   return sheetsInstance;
 };
