@@ -58,6 +58,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Registration error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      env: {
+        GOOGLE_SPREADSHEET_ID: process.env.GOOGLE_SPREADSHEET_ID ? 'SET' : 'MISSING',
+        GOOGLE_SERVICE_ACCOUNT_EMAIL: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ? 'SET' : 'MISSING',
+        GOOGLE_PRIVATE_KEY: process.env.GOOGLE_PRIVATE_KEY ? 'SET (length: ' + process.env.GOOGLE_PRIVATE_KEY.length + ')' : 'MISSING'
+      }
+    });
     return NextResponse.json({ 
       ok: false, 
       error: 'Registration failed. Please try again.' 

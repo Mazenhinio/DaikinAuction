@@ -38,7 +38,7 @@ const sheets = () => {
   }
 };
 
-const SHEET_ID = process.env.GOOGLE_SHEETS_ID!;
+const SHEET_ID = process.env.GOOGLE_SPREADSHEET_ID!;
 
 const append = async (tab: string, values: any[]) => {
   try {
