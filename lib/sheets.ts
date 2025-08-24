@@ -1,4 +1,6 @@
 import { google } from 'googleapis';
+import fs from 'fs';
+import path from 'path';
 
 // Create a single, reusable sheets instance
 let sheetsInstance: any = null;
@@ -9,56 +11,42 @@ const getSheets = () => {
     return sheetsInstance;
   }
 
-  console.log('CREATING new Google Sheets instance from environment variables...');
+  console.log('CREATING Google Service Account JSON file from environment variables...');
   
-  // Robust private key formatting to ensure crypto compatibility
-  let privateKey = process.env.GOOGLE_PRIVATE_KEY || '';
-  
-  console.log('RAW key preview:', privateKey.substring(0, 50) + '...');
-  console.log('RAW key length:', privateKey.length);
-  
-  // Clean and format the private key properly
-  privateKey = privateKey
-    .replace(/\\n/g, '\n')           // Replace literal \n with actual newlines
-    .replace(/\s+$/gm, '')           // Remove trailing whitespace from each line
-    .replace(/^\s+/gm, '')           // Remove leading whitespace from each line
-    .replace(/\n{2,}/g, '\n')        // Replace multiple newlines with single
-    .trim();                         // Remove leading/trailing whitespace
-  
-  // Ensure proper PEM format
-  if (!privateKey.startsWith('-----BEGIN PRIVATE KEY-----')) {
-    console.log('ERROR: Private key missing BEGIN header');
-    throw new Error('Private key must start with -----BEGIN PRIVATE KEY-----');
-  }
-  
-  if (!privateKey.endsWith('-----END PRIVATE KEY-----')) {
-    console.log('ERROR: Private key missing END footer');
-    throw new Error('Private key must end with -----END PRIVATE KEY-----');
-  }
-  
-  console.log('FORMATTED key length:', privateKey.length);
-  console.log('FORMATTED key preview:', privateKey.substring(0, 50) + '...');
-  console.log('Environment check:', {
-    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    keyLength: privateKey.length,
+  // Create the EXACT JSON structure that Google provided and that worked locally
+  const serviceAccountJson = {
+    "type": "service_account",
+    "project_id": "daikin-auction",
+    "private_key_id": "f39e4eb1e2f0f6109323192aa0d5160afd662fc4",
+    "private_key": process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n') || '',
+    "client_email": process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '',
+    "client_id": "116850139086533631153",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mazen-khalil%40daikin-auction.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+  };
+
+  console.log('Service account setup:', {
+    email: serviceAccountJson.client_email,
+    keyLength: serviceAccountJson.private_key.length,
     spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID
   });
 
-  // Use only the required JWT fields for GoogleAuth
+  // Write the JSON file exactly as Google provided it
+  const credentialsPath = path.join(process.cwd(), 'daikin-auction-f39e4eb1e2f0.json');
+  fs.writeFileSync(credentialsPath, JSON.stringify(serviceAccountJson, null, 2));
+  console.log('Created service account JSON file at:', credentialsPath);
+
+  // Use the EXACT same approach that worked locally - load from JSON file
   const auth = new google.auth.GoogleAuth({
-    credentials: {
-      type: "service_account",
-      project_id: "daikin-auction",
-      private_key_id: "f39e4eb1e2f0f6109323192aa0d5160afd662fc4",
-      private_key: privateKey,
-      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      client_id: "116850139086533631153"
-    },
+    keyFile: credentialsPath,
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
 
   sheetsInstance = google.sheets({ version: 'v4', auth });
-  console.log('Google Sheets instance created successfully');
+  console.log('Google Sheets instance created successfully using JSON file approach');
   
   return sheetsInstance;
 };
