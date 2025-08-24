@@ -20,7 +20,7 @@ const getSheets = () => {
     spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID
   });
 
-  // Use the EXACT same approach as when JSON worked
+  // Use only the required JWT fields for GoogleAuth
   const auth = new google.auth.GoogleAuth({
     credentials: {
       type: "service_account",
@@ -28,12 +28,7 @@ const getSheets = () => {
       private_key_id: "f39e4eb1e2f0f6109323192aa0d5160afd662fc4",
       private_key: privateKey,
       client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      client_id: "116850139086533631153",
-      auth_uri: "https://accounts.google.com/o/oauth2/auth",
-      token_uri: "https://oauth2.googleapis.com/token",
-      auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-      client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/mazen-khalil%40daikin-auction.iam.gserviceaccount.com",
-      universe_domain: "googleapis.com"
+      client_id: "116850139086533631153"
     },
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
