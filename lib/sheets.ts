@@ -70,7 +70,7 @@ export const ensureSheetExists = async (sheetName: string) => {
     });
     
     const sheetExists = spreadsheet.data.sheets?.some(
-      sheet => sheet.properties?.title === sheetName
+      (sheet: any) => sheet.properties?.title === sheetName
     );
     
     if (!sheetExists) {
