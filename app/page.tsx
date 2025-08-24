@@ -5,6 +5,12 @@ import { CountdownTimer } from '@/components/CountdownTimer'
 import { FAQ } from '@/components/FAQ'
 import { Download, Users, Zap } from 'lucide-react'
 
+// Add metadata for better SEO and debugging
+export const metadata = {
+  title: 'Daikin VRV Auction - Private Stock Sale',
+  description: 'Exclusive auction for Daikin VRV equipment. Register for access to catalogues and bidding.',
+}
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-100">
