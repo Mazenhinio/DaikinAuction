@@ -13,11 +13,29 @@ const sheets = () => {
       const rawCredentials = fs.readFileSync(credentialsPath, 'utf8');
       credentials = JSON.parse(rawCredentials);
     } else {
-      console.log('JSON file not found, using environment variables...');
+      console.log('JSON file not found, creating from environment variables...');
+      
+      // Create the full service account object structure that Google expects
       credentials = {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        type: "service_account",
+        project_id: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL?.split('@')[1]?.split('.')[0] || '',
+        private_key_id: "",
         private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        client_id: "",
+        auth_uri: "https://accounts.google.com/o/oauth2/auth",
+        token_uri: "https://oauth2.googleapis.com/token",
+        auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+        client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${encodeURIComponent(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '')}`
       };
+      
+      // Write the JSON file so it exists for next time (in serverless function)
+      try {
+        fs.writeFileSync(credentialsPath, JSON.stringify(credentials, null, 2));
+        console.log('Created service account JSON file from environment variables');
+      } catch (writeError) {
+        console.log('Could not write JSON file, continuing with in-memory credentials');
+      }
     }
 
     console.log('Auth setup:', {
