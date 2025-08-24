@@ -6,19 +6,36 @@ import path from 'path';
 const formatPrivateKey = (key: string | undefined): string => {
   if (!key) return '';
   
-  // Remove any existing headers/footers and whitespace
-  let cleanKey = key.replace(/-----BEGIN PRIVATE KEY-----/g, '')
-                    .replace(/-----END PRIVATE KEY-----/g, '')
-                    .replace(/\\n/g, '\n')
-                    .replace(/\s+/g, '\n')
-                    .trim();
+  console.log('Original key length:', key.length);
+  console.log('Original key preview:', key.substring(0, 100) + '...');
   
-  // Split into lines and rejoin properly
-  const keyLines = cleanKey.split('\n').filter(line => line.trim().length > 0);
-  const keyBody = keyLines.join('\n');
+  // Handle different possible formats of the private key
+  let processedKey = key;
   
-  // Return with proper headers
-  return `-----BEGIN PRIVATE KEY-----\n${keyBody}\n-----END PRIVATE KEY-----`;
+  // Replace literal \n with actual newlines
+  if (key.includes('\\n')) {
+    processedKey = key.replace(/\\n/g, '\n');
+    console.log('Replaced \\n with newlines');
+  }
+  
+  // If key doesn't have proper headers, add them
+  if (!processedKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    console.log('Adding headers to key without them');
+    processedKey = `-----BEGIN PRIVATE KEY-----\n${processedKey}\n-----END PRIVATE KEY-----`;
+  }
+  
+  // Clean up any malformed line breaks
+  processedKey = processedKey
+    .replace(/\r\n/g, '\n') // Handle Windows line endings
+    .replace(/\r/g, '\n')   // Handle old Mac line endings
+    .replace(/\n\s+/g, '\n') // Remove spaces after newlines
+    .replace(/\n+/g, '\n')   // Replace multiple newlines with single
+    .trim();
+  
+  console.log('Processed key length:', processedKey.length);
+  console.log('Processed key preview:', processedKey.substring(0, 100) + '...');
+  
+  return processedKey;
 };
 
 const sheets = () => {
