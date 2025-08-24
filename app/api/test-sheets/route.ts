@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
       spreadsheetId: SHEET_ID,
     });
     
-    const sheetNames = spreadsheetInfo.data.sheets?.map(sheet => sheet.properties?.title) || [];
+    const sheetNames = spreadsheetInfo.data.sheets?.map((sheet: any) => sheet.properties?.title) || [];
     
     return NextResponse.json({
       ok: true,
