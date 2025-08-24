@@ -60,7 +60,7 @@ const sheets = () => {
     console.log('Auth setup:', {
       email: credentials.client_email,
       keyLength: credentials.private_key?.length,
-      usingJsonFile: fs.existsSync(credentialsPath)
+      usingEnvVarsOnly: true
     });
 
     const auth = new google.auth.GoogleAuth({
