@@ -2,6 +2,25 @@ import { google } from 'googleapis';
 import fs from 'fs';
 import path from 'path';
 
+// Helper function to properly format the private key
+const formatPrivateKey = (key: string | undefined): string => {
+  if (!key) return '';
+  
+  // Remove any existing headers/footers and whitespace
+  let cleanKey = key.replace(/-----BEGIN PRIVATE KEY-----/g, '')
+                    .replace(/-----END PRIVATE KEY-----/g, '')
+                    .replace(/\\n/g, '\n')
+                    .replace(/\s+/g, '\n')
+                    .trim();
+  
+  // Split into lines and rejoin properly
+  const keyLines = cleanKey.split('\n').filter(line => line.trim().length > 0);
+  const keyBody = keyLines.join('\n');
+  
+  // Return with proper headers
+  return `-----BEGIN PRIVATE KEY-----\n${keyBody}\n-----END PRIVATE KEY-----`;
+};
+
 const sheets = () => {
   try {
     // Try to load from JSON file first (more reliable)
@@ -20,7 +39,7 @@ const sheets = () => {
         type: "service_account",
         project_id: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL?.split('@')[1]?.split('.')[0] || '',
         private_key_id: "",
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        private_key: formatPrivateKey(process.env.GOOGLE_PRIVATE_KEY),
         client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
         client_id: "",
         auth_uri: "https://accounts.google.com/o/oauth2/auth",
