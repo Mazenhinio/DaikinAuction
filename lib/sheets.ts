@@ -11,9 +11,33 @@ const getSheets = () => {
 
   console.log('CREATING new Google Sheets instance from environment variables...');
   
-  // Simple, direct approach - just replace \n and use as-is (like the JSON file)
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n') || '';
+  // Robust private key formatting to ensure crypto compatibility
+  let privateKey = process.env.GOOGLE_PRIVATE_KEY || '';
   
+  console.log('RAW key preview:', privateKey.substring(0, 50) + '...');
+  console.log('RAW key length:', privateKey.length);
+  
+  // Clean and format the private key properly
+  privateKey = privateKey
+    .replace(/\\n/g, '\n')           // Replace literal \n with actual newlines
+    .replace(/\s+$/gm, '')           // Remove trailing whitespace from each line
+    .replace(/^\s+/gm, '')           // Remove leading whitespace from each line
+    .replace(/\n{2,}/g, '\n')        // Replace multiple newlines with single
+    .trim();                         // Remove leading/trailing whitespace
+  
+  // Ensure proper PEM format
+  if (!privateKey.startsWith('-----BEGIN PRIVATE KEY-----')) {
+    console.log('ERROR: Private key missing BEGIN header');
+    throw new Error('Private key must start with -----BEGIN PRIVATE KEY-----');
+  }
+  
+  if (!privateKey.endsWith('-----END PRIVATE KEY-----')) {
+    console.log('ERROR: Private key missing END footer');
+    throw new Error('Private key must end with -----END PRIVATE KEY-----');
+  }
+  
+  console.log('FORMATTED key length:', privateKey.length);
+  console.log('FORMATTED key preview:', privateKey.substring(0, 50) + '...');
   console.log('Environment check:', {
     email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     keyLength: privateKey.length,
