@@ -1,72 +1,59 @@
-# Daikin Auction POC
+# Daikin VRV Auction Site
 
-A minimal, production-ready POC for a private Daikin VRV stock auction built with Next.js 14, TypeScript, and Google Sheets integration.
+A production-ready Next.js auction platform for Daikin VRV equipment with Google Sheets integration, JWT authentication, and comprehensive form validation.
 
 ## Features
 
-- **User Registration**: Signed HTTP-only cookie authentication (no database)
-- **Gated Access**: Download catalogues and submit bids after registration
-- **Google Sheets Logging**: All events logged to one spreadsheet with 3 tabs
-- **Modern UI**: Built with Tailwind CSS and shadcn/ui components
-- **Real-time Countdown**: Auction timer with live updates
+- 🎯 **Private Auction System** - Gated access with user registration
+- 📊 **Google Sheets Integration** - All events logged to spreadsheet (Registrations, Downloads, Bids)
+- 🎨 **Hero Image Integration** - Beautiful Daikin equipment showcase
+- 🤖 **Chatbot Support** - Integrated Chatbase chatbot for user assistance
+- 📱 **Mobile Responsive** - Works perfectly on all devices
+- 🔒 **Form Validation** - All form fields are required with proper validation
+- ⏰ **Countdown Timer** - Real-time auction countdown
+- 📋 **Interactive Bidding** - Visual product cards with bid submission
+- 🌟 **Modern UI** - Electric/midnight blue theme matching Daikin branding
 
 ## Tech Stack
 
-- Next.js 14+ (App Router)
-- TypeScript
-- Tailwind CSS
-- shadcn/ui components
-- Google Sheets API
-- JWT for sessions
-- Sonner for toast notifications
+- **Framework:** Next.js 14+ (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS + shadcn/ui components
+- **Authentication:** JWT with HTTP-only cookies
+- **Database:** Google Sheets (via Google Sheets API)
+- **Deployment:** Vercel-ready
 
-## Environment Setup
+## Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
+Create a `.env.local` file in the root directory with:
 
-```bash
-# Google Sheets Configuration
-GOOGLE_SHEETS_ID=your_spreadsheet_id_here
-GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@project.iam.gserviceaccount.com
-GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----\n"
+```env
+# Google Sheets Integration
+GOOGLE_SPREADSHEET_ID=your_spreadsheet_id_here
+GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account_email
+GOOGLE_PRIVATE_KEY=your_private_key_here
 
-# JWT Secret for session cookies
-JWT_SECRET=your_32_character_random_string_here
+# JWT Secret for authentication
+JWT_SECRET=your_jwt_secret_here
 ```
 
-## Google Sheets Setup
+## Google Service Account Setup
 
-1. **Create a Google Spreadsheet** with these exact tab names:
-   - `Registrations`
-   - `Downloads` 
-   - `Bids`
+1. Create a Google Service Account
+2. Generate a JSON key file
+3. Share your Google Spreadsheet with the service account email
+4. Either:
+   - Place the JSON file in the project root as `daikin-auction-f39e4eb1e2f0.json`
+   - OR use environment variables (GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_PRIVATE_KEY)
 
-2. **Set up a Service Account**:
-   - Go to Google Cloud Console
-   - Create a new project or use existing
-   - Enable Google Sheets API
-   - Create a Service Account
-   - Download the JSON credentials file
-   - Extract `client_email` and `private_key` for your `.env`
+## Google Spreadsheet Setup
 
-3. **Share the Spreadsheet**:
-   - Share your spreadsheet with the service account email
-   - Grant "Editor" permissions
+Create a Google Spreadsheet with three tabs:
+- **Registrations** - Headers: Timestamp, ID, Full Name, Company, Email, Phone, Country, Interests
+- **Downloads** - Headers: Timestamp, User ID, Catalogue, Full Name, Company, Email
+- **Bids** - Headers: Timestamp, User ID, Bundle, Bid Amount, Notes, Full Name, Company, Email
 
-## Column Headers
-
-The app expects these exact column headers in your Google Sheets:
-
-### Registrations Tab
-`Timestamp | UserId | FullName | CompanyName | Email | Phone | Country | Interests | IP | UserAgent`
-
-### Downloads Tab  
-`Timestamp | UserId | Email | CatalogueSlug | CatalogueTitle | IP | UserAgent`
-
-### Bids Tab
-`Timestamp | UserId | Email | BundleSlug | Notes | IP | UserAgent`
-
-## Installation
+## Local Development
 
 ```bash
 # Install dependencies
@@ -74,77 +61,52 @@ npm install
 
 # Run development server
 npm run dev
-
-# Build for production
-npm run build
-npm start
 ```
+
+Visit `http://localhost:3000`
 
 ## Deployment
 
-This app is ready for deployment on:
-- Vercel (recommended)
-- Netlify
-- Any Node.js hosting platform
+### Vercel Deployment
 
-Set the environment variables in your hosting platform's dashboard.
+1. Connect your GitHub repository to Vercel
+2. Add environment variables in Vercel dashboard:
+   - `GOOGLE_SPREADSHEET_ID`
+   - `GOOGLE_SERVICE_ACCOUNT_EMAIL`
+   - `GOOGLE_PRIVATE_KEY`
+   - `JWT_SECRET`
+3. Deploy automatically from main branch
+
+### Environment Variables in Vercel
+
+Go to your Vercel project settings → Environment Variables and add:
+
+- `GOOGLE_SPREADSHEET_ID`: Your Google Sheets spreadsheet ID
+- `GOOGLE_SERVICE_ACCOUNT_EMAIL`: Service account email from your JSON file
+- `GOOGLE_PRIVATE_KEY`: Private key from your JSON file (include -----BEGIN/END----- lines)
+- `JWT_SECRET`: A secure random string for JWT signing
 
 ## Project Structure
 
 ```
-app/
-  page.tsx                 # Landing page
-  access/page.tsx          # Gated registration/dashboard
-  api/register/route.ts    # Registration endpoint
-  api/track/download/route.ts # Download tracking
-  api/bids/route.ts        # Bid submission
-components/
-  RegistrationForm.tsx     # User registration form
-  CatalogueCards.tsx       # Product catalogue cards
-  BidForm.tsx             # Bid submission form
-  CountdownTimer.tsx      # Auction countdown
-lib/
-  auth.ts                 # JWT session management
-  sheets.ts               # Google Sheets integration
-  catalogues.ts           # Product catalogue data
-types/
-  events.ts              # TypeScript definitions
+├── app/                    # Next.js App Router
+├── components/            # React components
+├── lib/                   # Utility functions
+├── types/                 # TypeScript types
+├── public/               # Static assets
+│   ├── catalogues/       # PDF catalogue files
+│   └── images/           # Product images
+└── README.md
 ```
 
-## Usage
+## Security Features
 
-1. **Landing Page**: Visit `/` to see auction info and countdown
-2. **Registration**: Click "Register for Access" to create account
-3. **Access Portal**: After registration, access `/access` for catalogues and bidding
-4. **Download Tracking**: All catalogue downloads are logged to Google Sheets
-5. **Bid Submission**: Submit bids for different product bundles
+- JWT authentication with HTTP-only cookies
+- Environment variables for sensitive data
+- Input validation and sanitization
+- CORS protection
+- Secure Google Sheets API integration
 
-## Customization
+## Contributing
 
-### Product Catalogues
-Edit `lib/catalogues.ts` to modify available catalogues and their download URLs.
-
-### Auction End Date
-Modify the date in `components/CountdownTimer.tsx` to set your auction deadline.
-
-### Bundle Types
-Update bundle options in `components/BidForm.tsx` and the TypeScript types.
-
-## Security Notes
-
-- Sessions use HTTP-only cookies with secure flags in production
-- JWT tokens expire after 30 days
-- All API routes validate authentication
-- Input validation using Zod schemas
-- CSRF protection through SameSite cookie settings
-
-## Analytics & Monitoring
-
-All events are logged to console with structured data:
-- Registration events
-- Catalogue download tracking  
-- Bid submissions
-
-## Support
-
-For questions about setup or customization, refer to the API documentation in the route files or check the component implementations.
+This is a private auction platform. Please ensure all sensitive data remains secure and never commit environment files or service account keys.
