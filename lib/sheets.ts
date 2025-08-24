@@ -11,81 +11,62 @@ const getSheets = () => {
     return sheetsInstance;
   }
 
-  console.log('INITIALIZING Google Sheets with environment variables...');
+  console.log('INITIALIZING Google Sheets with JSON file (LOCAL APPROACH)...');
   
-  // Get environment variables with proper error handling
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKeyRaw = process.env.GOOGLE_PRIVATE_KEY;
-  
-  console.log('Environment check:', {
-    GOOGLE_SPREADSHEET_ID: spreadsheetId ? 'SET' : 'MISSING',
-    GOOGLE_SERVICE_ACCOUNT_EMAIL: clientEmail ? 'SET' : 'MISSING',
-    GOOGLE_PRIVATE_KEY: privateKeyRaw ? `SET (${privateKeyRaw.length} chars)` : 'MISSING'
-  });
-  
-  // Validate all required environment variables
-  if (!spreadsheetId) {
-    throw new Error('GOOGLE_SPREADSHEET_ID environment variable is required');
-  }
-  if (!clientEmail) {
-    throw new Error('GOOGLE_SERVICE_ACCOUNT_EMAIL environment variable is required');
-  }
-  if (!privateKeyRaw) {
-    throw new Error('GOOGLE_PRIVATE_KEY environment variable is required');
-  }
+  try {
+    // First try to use the JSON file (works locally and Vercel will use env vars)
+    const keyFilePath = path.join(process.cwd(), 'daikin-auction-f39e4eb1e2f0.json');
+    
+    let credentials;
+    
+    if (fs.existsSync(keyFilePath)) {
+      console.log('✅ Found service account JSON file, using file-based auth');
+      const keyFile = JSON.parse(fs.readFileSync(keyFilePath, 'utf8'));
+      credentials = keyFile;
+    } else {
+      console.log('⚠️ JSON file not found, falling back to environment variables');
+      
+      // Fallback to environment variables (for Vercel)
+      const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+      const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+      const privateKeyRaw = process.env.GOOGLE_PRIVATE_KEY;
+      
+      if (!spreadsheetId || !clientEmail || !privateKeyRaw) {
+        throw new Error('Missing required credentials: JSON file not found and env vars incomplete');
+      }
+      
+      let privateKey = privateKeyRaw.trim();
+      if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+        privateKey = privateKey.slice(1, -1);
+      }
+      privateKey = privateKey.replace(/\\n/g, '\n');
+      
+      credentials = {
+        type: "service_account",
+        project_id: "daikin-auction",
+        private_key_id: "85c11ed5ea95ab0e473818e9f09ae0012bfa4aa5",
+        private_key: privateKey,
+        client_email: clientEmail,
+        client_id: "101146336804974189368"
+      };
+    }
 
-  // Process private key with robust format handling
-  let privateKey = privateKeyRaw.trim();
-  
-  // Remove surrounding quotes if present
-  if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-    privateKey = privateKey.slice(1, -1);
-  }
-  
-  // Replace escaped newlines with actual newlines
-  privateKey = privateKey.replace(/\\n/g, '\n');
-  
-  // Ensure proper PEM format (sometimes the key gets mangled)
-  if (!privateKey.startsWith('-----BEGIN PRIVATE KEY-----')) {
-    throw new Error('Private key must start with -----BEGIN PRIVATE KEY-----');
-  }
-  if (!privateKey.endsWith('-----END PRIVATE KEY-----')) {
-    throw new Error('Private key must end with -----END PRIVATE KEY-----');
-  }
-  
-  // Clean up any extra whitespace but preserve newlines
-  privateKey = privateKey.replace(/\r\n/g, '\n'); // Convert Windows line endings
-  privateKey = privateKey.replace(/\r/g, '\n');   // Convert old Mac line endings
-  
-  // Split into lines, trim each line (removes extra spaces), rejoin
-  const lines = privateKey.split('\n');
-  privateKey = lines.map(line => line.trim()).join('\n');
-  
-  console.log('Processed private key length:', privateKey.length);
-  console.log('Private key starts with:', privateKey.substring(0, 50));
-  console.log('Private key ends with:', privateKey.substring(privateKey.length - 50));
+    const auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
 
-  // Create GoogleAuth with required JWT credentials only
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      type: "service_account",
-      project_id: "daikin-auction", 
-      private_key_id: "f39e4eb1e2f0f6109323192aa0d5160afd662fc4",
-      private_key: privateKey,
-      client_email: clientEmail,
-      client_id: "116850139086533631153"
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-
-  sheetsInstance = google.sheets({ version: 'v4', auth });
-  console.log('✅ Google Sheets instance created successfully');
-  
-  return sheetsInstance;
+    sheetsInstance = google.sheets({ version: 'v4', auth });
+    console.log('✅ Google Sheets instance created successfully');
+    
+    return sheetsInstance;
+  } catch (error) {
+    console.error('❌ Failed to initialize Google Sheets:', error);
+    throw error;
+  }
 };
 
-const SHEET_ID = process.env.GOOGLE_SPREADSHEET_ID!;
+const SHEET_ID = process.env.GOOGLE_SPREADSHEET_ID || '1VYXpn0veIIQNUzNxwdFOgWwcMu-SufJ2rsFYoyEv4FM';
 
 const append = async (tab: string, values: any[]) => {
   try {
