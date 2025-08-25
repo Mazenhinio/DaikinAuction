@@ -5,8 +5,10 @@ import { BidForm } from '@/components/BidForm'
 import { CountdownTimer } from '@/components/CountdownTimer'
 import { FAQ } from '@/components/FAQ'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
+import { AccessHeroActions } from '@/components/AccessHeroActions'
 
 // Force dynamic rendering for this page (uses cookies for authentication)
 export const dynamic = 'force-dynamic'
@@ -47,7 +49,8 @@ export default async function AccessPage() {
       <header className="bg-gradient-to-r from-blue-900 to-blue-800 shadow-lg border-b border-blue-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex items-center gap-3">
+              <Image src="/images/Smart%20Logo.png" alt="Smart Logo" width={56} height={56} priority />
               <h1 className="text-2xl font-bold text-white">Daikin VRV Auction Portal</h1>
             </div>
             <Button variant="ghost" asChild className="text-white hover:text-cyan-200 hover:bg-white/10">
@@ -83,11 +86,11 @@ export default async function AccessPage() {
                   Download catalogues, review available stock, and submit your competitive bids below.
                 </p>
               </div>
+
+              {/* Actions */}
+              <AccessHeroActions />
               
-              {/* Countdown Timer */}
-              <div className="flex justify-center">
-                <CountdownTimer />
-              </div>
+              
               
               {/* Highlighted Features */}
               <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -118,7 +121,6 @@ export default async function AccessPage() {
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-blue-900">Product Catalogues</h2>
-            <p className="text-sm text-blue-600">Click to download and view available stock</p>
           </div>
           
           <CatalogueCards />
@@ -133,6 +135,16 @@ export default async function AccessPage() {
           
           <BidForm />
         </div>
+
+        {/* Countdown Section (moved from hero) */}
+        <section className="mb-8">
+          <div className="bg-black text-white rounded-xl shadow-md p-6">
+            <h3 className="text-xl font-semibold text-white mb-4 text-center">Auction Countdown</h3>
+            <div className="flex justify-center">
+              <CountdownTimer />
+            </div>
+          </div>
+        </section>
 
         {/* FAQ Section */}
         <div className="mb-8">

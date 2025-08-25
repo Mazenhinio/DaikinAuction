@@ -2,10 +2,11 @@
 
 import { Button } from '@/components/ui/button'
 import { CATALOGUES } from '@/lib/catalogues'
-import { Download, FileText } from 'lucide-react'
+import { FileText, ArrowRight } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
-export function CatalogueCards() {
+export function CatalogueCardsHome() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {CATALOGUES.map((catalogue) => (
@@ -48,28 +49,27 @@ export function CatalogueCards() {
                 </p>
               </div>
               
-{catalogue.slug === 'bundles' ? (
+              {catalogue.slug === 'bundles' ? (
                 <Button 
+                  asChild
                   className="w-full bg-orange-600/90 hover:bg-orange-700 backdrop-blur-sm border border-white/20 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-                  onClick={() => {
-                    // Scroll to bid form section
-                    document.getElementById('bid-form')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
                 >
-                  <div className="flex items-center justify-center">
-                    <span className="mr-2">🎯</span>
-                    Mix and Match
-                  </div>
+                  <Link href="/access">
+                    <div className="flex items-center justify-center">
+                      <span className="mr-2">🎯</span>
+                      Mix and Match
+                    </div>
+                  </Link>
                 </Button>
               ) : (
                 <Button 
                   asChild 
                   className="w-full bg-blue-600/90 hover:bg-blue-700 backdrop-blur-sm border border-white/20 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  <a href="/access">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Catalogue
-                  </a>
+                  <Link href="/access">
+                    <ArrowRight className="h-4 w-4 mr-2" />
+                    View Catalogue
+                  </Link>
                 </Button>
               )}
             </div>

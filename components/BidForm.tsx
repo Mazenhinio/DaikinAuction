@@ -84,20 +84,26 @@ export function BidForm() {
     return Object.entries(formData.bids).filter(([_, amount]) => amount && amount > 0)
   }
 
+  const getSelectedBundles = () => {
+    return Array.from(selectedBundles.values())
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    const selectedBids = getSelectedBids()
-    if (selectedBids.length === 0) {
-      toast.error('Please enter at least one bid amount')
+    // Allow submitting with selected bundles even without bid amounts
+    const selected = getSelectedBundles()
+    if (selected.length === 0) {
+      toast.error('Please select at least one bundle')
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      // Submit each bid separately to match the existing API structure
-      for (const [bundleSlug, bidAmount] of selectedBids) {
+      // Submit each selected bundle separately; bidAmount may be undefined
+      for (const bundleSlug of selected) {
+        const bidAmount = formData.bids[bundleSlug as keyof BidInput['bids']]
         const response = await fetch('/api/bids', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -113,8 +119,7 @@ export function BidForm() {
           throw new Error(result.error || 'Bid submission failed')
         }
       }
-
-      toast.success(`Successfully submitted ${selectedBids.length} bid(s)! We will be in touch shortly.`)
+      toast.success(`Successfully submitted ${selected.length} selection(s)! We will be in touch shortly.`)
       setFormData({ bids: {}, notes: '' })
       setSelectedBundles(new Set())
     } catch (error) {
@@ -163,12 +168,12 @@ export function BidForm() {
                       <p className="text-sm text-gray-600">{option.description}</p>
                       
                       {!isSelected && (
-                        <p className="text-xs text-blue-600 mt-2 font-medium">Click to select and enter your bid amount</p>
+                        <p className="text-xs text-blue-600 mt-2 font-medium">Click to select. Bid amount optional.</p>
                       )}
                       
                       {isSelected && (
                         <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-                          <Label className="text-sm font-medium text-gray-700">Your Bid Amount in USD *</Label>
+                          <Label className="text-sm font-medium text-gray-700">Your Bid Amount in USD (optional)</Label>
                           <Input
                             type="number"
                             placeholder="Enter amount (e.g. 30000)"
@@ -178,7 +183,7 @@ export function BidForm() {
                             min="0.01"
                             step="0.01"
                             autoFocus
-                            required
+                            // optional
                           />
                           {hasBidAmount && (
                             <p className="text-xs text-green-600 mt-1 font-medium">
@@ -199,16 +204,17 @@ export function BidForm() {
         <div className="bg-white rounded-lg p-4 mb-6 border-l-4 border-blue-500">
           <h4 className="font-semibold text-gray-900 mb-2">Selected Bundles Summary:</h4>
           <div className="space-y-1">
-            {getSelectedBids().map(([bundleKey, amount]) => {
+            {Array.from(selectedBundles.values()).map((bundleKey) => {
               const bundle = BUNDLE_OPTIONS.find(b => b.value === bundleKey)
+              const amount = formData.bids[bundleKey as keyof BidInput['bids']]
               return (
                 <div key={bundleKey} className="flex justify-between text-sm">
                   <span className="text-gray-700">{bundle?.label}</span>
-                  <span className="text-green-600 font-medium">${(amount as number).toLocaleString()}</span>
+                  <span className="text-green-600 font-medium">{amount ? `$${(amount as number).toLocaleString()}` : 'No bid amount'}</span>
                 </div>
               )
             })}
-            {getSelectedBids().length === 0 && (
+            {selectedBundles.size === 0 && (
               <p className="text-gray-500 text-sm">No bundles selected yet</p>
             )}
           </div>
@@ -233,12 +239,12 @@ export function BidForm() {
         {/* Submit Button */}
         <Button 
           type="submit" 
-          disabled={isSubmitting || getSelectedBids().length === 0}
+          disabled={isSubmitting || selectedBundles.size === 0}
           className="w-full bg-black text-white py-4 rounded-lg font-semibold text-lg hover:bg-gray-800 disabled:opacity-50"
         >
           {isSubmitting 
-            ? 'Submitting Bids...' 
-            : `Submit My Bids (${getSelectedBids().length} bundles)`}
+            ? 'Submitting...' 
+            : `Submit (${selectedBundles.size} selected)`}
         </Button>
       </form>
     </div>

@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Daikin VRV Auction - Private Stock Sale',
   description: 'Exclusive auction for Daikin VRV stock. Register for access to catalogues and bidding.',
+  icons: {
+    icon: '/images/Daikin_Logo.png'
+  }
 }
 
 export default function RootLayout({

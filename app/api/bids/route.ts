@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 const schema = z.object({
   bundleSlug: z.enum(['vrf-indoor','vrf-outdoor','accessories','split','spare','mixed']),
-  bidAmount: z.number().min(0.01, "Bid amount must be greater than 0"),
+  bidAmount: z.number().min(0.01, "Bid amount must be greater than 0").optional(),
   notes: z.string().max(2000, "Notes must be less than 2000 characters").optional(),
 });
 
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       session.uid, 
       session.email, 
       parsed.data.bundleSlug, 
-      parsed.data.bidAmount,
+      parsed.data.bidAmount ?? '',
       parsed.data.notes ?? '', 
       ip, 
       ua
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     console.log('Bid logged:', { 
       uid: session.uid, 
       bundle: parsed.data.bundleSlug, 
-      amount: parsed.data.bidAmount 
+      amount: parsed.data.bidAmount ?? '(no amount)'
     });
 
     return NextResponse.json({ ok: true });

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { CatalogueCards } from '@/components/CatalogueCards'
 import { CountdownTimer } from '@/components/CountdownTimer'
 import { FAQ } from '@/components/FAQ'
 import { Download, Users, Zap } from 'lucide-react'
@@ -12,7 +13,10 @@ export default function HomePage() {
       <header className="bg-gradient-to-r from-blue-900 to-blue-800 shadow-lg border-b border-blue-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white">Daikin VRV Auction</h1>
+            <div className="flex items-center gap-3">
+              <Image src="/images/Smart%20Logo.png" alt="Smart Logo" width={56} height={56} priority />
+              <h1 className="text-2xl font-bold text-white">Daikin VRV Auction</h1>
+            </div>
             <Button asChild className="bg-cyan-500 hover:bg-cyan-600 text-white">
               <Link href="/access">Access Portal</Link>
             </Button>
@@ -105,28 +109,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Product Categories */}
-      <section className="py-16 bg-gray-50">
+      {/* Product Catalogues (copied from access page) */}
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h3 className="text-3xl font-bold text-center text-gray-900 mb-12">Available Categories</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { title: 'VRF Indoor Units', desc: 'Ceiling cassettes, wall mounted, and ducted units' },
-              { title: 'VRF Outdoor Units', desc: 'Condensing units and heat pump systems' },
-              { title: 'Split Systems', desc: 'Single and multi-split AC systems' },
-              { title: 'Accessories', desc: 'Controllers, remotes, and installation accessories' },
-              { title: 'Spare Parts', desc: 'Genuine Daikin replacement components' },
-              { title: 'Mixed Bundles', desc: 'Combination packages with multiple product types' },
-            ].map((category, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm border p-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">{category.title}</h4>
-                <p className="text-gray-600">{category.desc}</p>
-              </div>
-            ))}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-blue-900">Product Catalogues</h2>
           </div>
+          <CatalogueCards />
         </div>
       </section>
+
+      
 
       {/* FAQ Section */}
       <section className="py-16 bg-white">

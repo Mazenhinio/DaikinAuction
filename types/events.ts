@@ -22,7 +22,7 @@ export type BidInput = {
 
 export type BidSubmission = {
   bundleSlug: string;
-  bidAmount: number;
+  bidAmount?: number;
   notes?: string;
 };
 
