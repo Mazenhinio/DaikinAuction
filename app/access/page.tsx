@@ -51,7 +51,7 @@ export default async function AccessPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Image src="/images/Smart%20Logo.png" alt="Smart Logo" width={56} height={56} priority />
-              <h1 className="text-2xl font-bold text-white">Daikin VRV Auction Portal</h1>
+              <h1 className="text-base font-bold text-white">Daikin VRV Auction Portal</h1>
             </div>
             <Button variant="ghost" asChild className="text-white hover:text-cyan-200 hover:bg-white/10">
               <Link href="/">
@@ -123,7 +123,7 @@ export default async function AccessPage() {
             <h2 className="text-2xl font-bold text-blue-900">Product Catalogues</h2>
           </div>
           
-          <CatalogueCards />
+          <CatalogueCards enableDownloads />
         </div>
 
         {/* Bid Submission Section */}

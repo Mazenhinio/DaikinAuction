@@ -15,9 +15,9 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Image src="/images/Smart%20Logo.png" alt="Smart Logo" width={56} height={56} priority />
-              <h1 className="text-2xl font-bold text-white">Daikin VRV Auction</h1>
+              <h1 className="text-base font-bold text-white">Daikin VRV Auction</h1>
             </div>
-            <Button asChild className="bg-cyan-500 hover:bg-cyan-600 text-white">
+            <Button asChild className="bg-black hover:bg-gray-900 text-white">
               <Link href="/access">Access Portal</Link>
             </Button>
           </div>
@@ -60,11 +60,14 @@ export default function HomePage() {
             <Button 
               size="lg" 
               asChild 
-              className="bg-cyan-500 hover:bg-cyan-600 text-white px-8 py-3 text-lg font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
+              className="bg-black hover:bg-gray-900 text-white px-8 py-3 text-lg font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
             >
               <Link href="/access">
                 Register for Access
               </Link>
+            </Button>
+            <Button variant="outline" asChild className="bg-white/10 text-white border-white/30 hover:bg-white/20">
+              <Link href="https://calendly.com/">Book a call</Link>
             </Button>
           </div>
         </div>

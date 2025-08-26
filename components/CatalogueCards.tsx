@@ -5,7 +5,11 @@ import { CATALOGUES } from '@/lib/catalogues'
 import { Download, FileText } from 'lucide-react'
 import Image from 'next/image'
 
-export function CatalogueCards() {
+type CatalogueCardsProps = {
+  enableDownloads?: boolean
+}
+
+export function CatalogueCards({ enableDownloads = false }: CatalogueCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {CATALOGUES.map((catalogue) => (
@@ -66,10 +70,17 @@ export function CatalogueCards() {
                   asChild 
                   className="w-full bg-blue-600/90 hover:bg-blue-700 backdrop-blur-sm border border-white/20 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  <a href="/access">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Catalogue
-                  </a>
+                  {enableDownloads ? (
+                    <a href={catalogue.fileUrl} target="_blank" rel="noopener noreferrer">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Catalogue
+                    </a>
+                  ) : (
+                    <a href="/access">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Catalogue
+                    </a>
+                  )}
                 </Button>
               )}
             </div>

@@ -34,11 +34,6 @@ const BUNDLE_OPTIONS = [
     label: 'Spare Parts Inventory', 
     description: 'Genuine Daikin replacement parts'
   },
-  { 
-    value: 'mixed' as const, 
-    label: 'Mixed Equipment Package', 
-    description: 'Combination of different product types'
-  },
 ]
 
 export function BidForm() {
