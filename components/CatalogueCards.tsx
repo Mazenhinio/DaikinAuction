@@ -71,7 +71,7 @@ export function CatalogueCards({ enableDownloads = false }: CatalogueCardsProps)
                   className="w-full bg-blue-600/90 hover:bg-blue-700 backdrop-blur-sm border border-white/20 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   {enableDownloads ? (
-                    <a href={catalogue.fileUrl} target="_blank" rel="noopener noreferrer">
+                    <a href={`/api/track/download?catalogue=${catalogue.slug}`}>
                       <Download className="h-4 w-4 mr-2" />
                       Download Catalogue
                     </a>
