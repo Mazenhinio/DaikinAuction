@@ -67,7 +67,7 @@ export default function HomePage() {
               </Link>
             </Button>
             <Button variant="outline" asChild className="bg-white/10 text-white border-white/30 hover:bg-white/20">
-              <Link href="https://calendly.com/">Book a call</Link>
+              <Link href="https://calendly.com/m-amin-smarttradingscc">Book a call</Link>
             </Button>
           </div>
         </div>

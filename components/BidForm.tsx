@@ -114,9 +114,12 @@ export function BidForm() {
           throw new Error(result.error || 'Bid submission failed')
         }
       }
-      toast.success(`Successfully submitted ${selected.length} selection(s)! We will be in touch shortly.`)
+      toast.success(`Successfully submitted ${selected.length} selection(s)! Redirecting to booking...`)
+      // Reset state
       setFormData({ bids: {}, notes: '' })
       setSelectedBundles(new Set())
+      // Redirect to Calendly
+      window.location.href = 'https://calendly.com/m-amin-smarttradingscc'
     } catch (error) {
       console.error('Bid submission error:', error)
       toast.error('Bid submission failed. Please try again.')

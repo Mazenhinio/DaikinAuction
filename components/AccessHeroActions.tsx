@@ -17,7 +17,7 @@ export function AccessHeroActions() {
         Submit your bids now
       </Button>
       <Button variant="outline" asChild className="bg-white/10 text-white border-white/30 hover:bg-white/20">
-        <Link href="https://calendly.com/">
+        <Link href="https://calendly.com/m-amin-smarttradingscc">
           Book a call
         </Link>
       </Button>
