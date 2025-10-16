@@ -30,7 +30,7 @@ const FAQ_DATA = [
   },
   {
     question: "How long is the auction open?",
-    answer: "The auction closes on October 9, 2025. After that date, allocation will be finalized and confirmed buyers will be contacted directly."
+    answer: "The auction closes on October 30, 2025. After that date, allocation will be finalized and confirmed buyers will be contacted directly."
   },
   {
     question: "Can you help with shipping documents and export papers?",

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 
-// Daikin VRV Auction ends on October 9th, 2025
-const AUCTION_END_DATE = new Date('2025-10-09T23:59:59Z').getTime()
+// Daikin VRV Auction ends on October 30th, 2025
+const AUCTION_END_DATE = new Date('2025-10-30T23:59:59Z').getTime()
 
 export function CountdownTimer() {
   const [timeLeft, setTimeLeft] = useState({
