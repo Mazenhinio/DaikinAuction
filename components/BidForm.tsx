@@ -119,7 +119,7 @@ export function BidForm() {
       setFormData({ bids: {}, notes: '' })
       setSelectedBundles(new Set())
       // Redirect to Calendly
-      window.location.href = 'https://calendly.com/m-amin-smarttradingscc'
+      window.location.href = 'https://calendly.com/tawfik-rady-egicat/30min'
     } catch (error) {
       console.error('Bid submission error:', error)
       toast.error('Bid submission failed. Please try again.')
